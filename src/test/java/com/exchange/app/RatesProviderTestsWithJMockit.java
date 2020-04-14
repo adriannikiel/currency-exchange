@@ -5,9 +5,9 @@ import mockit.MockUp;
 import mockit.Mocked;
 import mockit.Verifications;
 import org.assertj.core.api.Assertions;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +30,7 @@ public class RatesProviderTestsWithJMockit extends MockUp<ForeignExchangeRatesAp
 
         new Expectations(){{
             apiClient.getLatestRates(anyString);
-            result = new ExchangeRates(USD, DateTime.now(), rates);
+            result = new ExchangeRates(USD, LocalDate.now(), rates);
             times = 1;
         }};
 

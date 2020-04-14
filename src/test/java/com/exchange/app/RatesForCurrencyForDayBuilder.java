@@ -1,7 +1,6 @@
 package com.exchange.app;
 
-import org.joda.time.DateTime;
-
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +13,7 @@ class RatesForCurrencyForDayBuilder {
 
     private String currency;
     private Map<String, Double> rates;
-    private DateTime date;
+    private LocalDate date;
 
     public RatesForCurrencyForDayBuilder basedUSD() {
         currency = CurrencyStaticFields.USD;
@@ -50,20 +49,20 @@ class RatesForCurrencyForDayBuilder {
      * @return
      */
     public RatesForCurrencyForDayBuilder forDay(int day) {
-        DateTime dateTime = DateTime.now();
+        LocalDate dateTime = LocalDate.now();
         if (day > 0) dateTime = dateTime.plusDays(day);
         if (day < 0) dateTime = dateTime.minusDays(-day);
         date = dateTime;
         return this;
     }
 
-    public RatesForCurrencyForDayBuilder forDay(DateTime date) {
+    public RatesForCurrencyForDayBuilder forDay(LocalDate date) {
         this.date = date;
         return this;
     }
 
     public ExchangeRates build() {
-        if (date == null) this.date = DateTime.now();
+        if (date == null) this.date = LocalDate.now();
         return new ExchangeRates(currency, date, rates);
     }
 

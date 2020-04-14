@@ -1,6 +1,5 @@
 package com.exchange.app;
 
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,17 +7,11 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.util.Arrays;
-import java.util.Currency;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.time.LocalDate;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 
 class RatesProviderTests {
@@ -131,17 +124,17 @@ class RatesProviderTests {
         Map<String, Double> rates = new HashMap<String, Double>() {};
         rates.put(USD, random.nextDouble());
         rates.put(SEK, random.nextDouble());
-        return initializeExchangeRates(EUR, DateTime.now(), rates);
+        return initializeExchangeRates(EUR, LocalDate.now(), rates);
     }
 
     private ExchangeRates initializeExchangeRates(String base) {
         Map<String, Double> rates = new HashMap<String, Double>() {};
         rates.put(EUR, random.nextDouble());
         rates.put(SEK, random.nextDouble());
-        return initializeExchangeRates(base, DateTime.now(), rates);
+        return initializeExchangeRates(base, LocalDate.now(), rates);
     }
 
-    private ExchangeRates initializeExchangeRates(String base, DateTime date, Map<String, Double> rates) {
+    private ExchangeRates initializeExchangeRates(String base, LocalDate date, Map<String, Double> rates) {
         return new ExchangeRates(base, date, rates);
     }
 

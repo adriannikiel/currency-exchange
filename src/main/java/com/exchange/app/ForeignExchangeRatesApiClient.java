@@ -1,7 +1,6 @@
 package com.exchange.app;
 
-import org.joda.time.DateTime;
-
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ForeignExchangeRatesApiClient {
@@ -12,11 +11,11 @@ public interface ForeignExchangeRatesApiClient {
 
     ExchangeRates getLatestRates(String base);
 
-    ExchangeRates getHistoricalRates(DateTime date);
+    ExchangeRates getHistoricalRates(LocalDate date);
 
-    List<ExchangeRates> getHistoricalRates(DateTime start_at, DateTime end_at);
+    List<ExchangeRates> getHistoricalRates(LocalDate start_at, LocalDate end_at);
 
-    List<ExchangeRates> getHistoricalRates(DateTime start_at, DateTime end_at, List<String> symbols);
+    List<ExchangeRates> getHistoricalRates(LocalDate start_at, LocalDate end_at, List<String> symbols);
 
-    List<ExchangeRates> getHistoricalRates(DateTime start_at, DateTime end_at, String base);
+    List<ExchangeRates> getHistoricalRates(LocalDate start_at, LocalDate end_at, String base);
 }

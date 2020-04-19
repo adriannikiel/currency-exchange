@@ -107,11 +107,8 @@ class RatesProviderTests {
     @Test
     void shouldGetRatesOnlyOnce() {
         //given
-        ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
         ExchangeRates exchangeRates = initializeExchangeRates();
         Mockito.when(apiClient.getLatestRates()).thenReturn(exchangeRates);
-
-        RatesProvider provider = new RatesProvider(apiClient);
 
         //when
         provider.getExchangeRateInEUR(Currency.getInstance(SEK));
@@ -124,13 +121,11 @@ class RatesProviderTests {
     @DisplayName("For default currency (EUR) returns historical USD rate for specific date")
     void should_return_historical_USD_rate_for_default_currency_for_specific_date() {
         //given
-        ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
         ExchangeRates exchangeRates = initializeExchangeRates();
 
         DateTime date = new DateTime(2020,1,3,0,0);
         Mockito.when(apiClient.getHistoricalRates(date)).thenReturn(exchangeRates);
 
-        RatesProvider provider = new RatesProvider(apiClient);
 
         //when
         Double rateUSD = provider.getExchangeRateinEURforSpecificDate(date, Currency.getInstance(USD));

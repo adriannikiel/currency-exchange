@@ -8,17 +8,10 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.util.Arrays;
-import java.util.Currency;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 
 class RatesProviderTests {
@@ -127,15 +120,116 @@ class RatesProviderTests {
         Mockito.verify(apiClient).getLatestRates();
     }
 
+    @Test
+    @DisplayName("For default currency (EUR) returns historical USD rate for specific date")
+    void should_return_historical_USD_rate_for_default_currency_for_specific_date() {
+        //given
+        ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
+        ExchangeRates exchangeRates = initializeExchangeRates();
+
+        DateTime date = new DateTime(2020,1,3,0,0);
+        Mockito.when(apiClient.getHistoricalRates(date)).thenReturn(exchangeRates);
+
+        RatesProvider provider = new RatesProvider(apiClient);
+
+        //when
+        Double rateUSD = provider.getExchangeRateinEURforSpecificDate(date, Currency.getInstance(USD));
+
+        //then
+        assertThat(exchangeRates.get(USD)).isEqualTo(rateUSD);
+    }
+
+    @Test
+    @DisplayName("For default currency (EUR) returns historical USD rates for specific period of time ")
+    void test() {
+        //given
+        ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
+
+        List<ExchangeRates> listExchangeRates = initializeExchangeRatesForFirst3DaysOfJanuary();
+        ExchangeRates januaryFirst2020exchangeRates = listExchangeRates.get(0);
+        ExchangeRates januarySecond20202xchangeRates = listExchangeRates.get(1);
+        ExchangeRates januaryThird2020exchangeRates = listExchangeRates.get(2);
+
+        Map<String, DateTime> dates = initializeDates();
+
+        Mockito.when(apiClient.getHistoricalRates(dates.get("januaryFirst2020"), dates.get("januaryThird2020"))).thenReturn(listExchangeRates);
+
+        RatesProvider provider = new RatesProvider(apiClient);
+
+        //when
+        List<Double> ratesUSD = provider.getExchangeRatesInEURForSpecificPeriodOfTime(dates.get("januaryFirst2020"), dates.get("januaryThird2020"), Currency.getInstance(USD));
+        Double januaryFirst2020ratedUSD = ratesUSD.get(0);
+        Double januarySecond2020ratesUSD = ratesUSD.get(1);
+        Double januaryThird2020ratesUSD = ratesUSD.get(2);
+
+        //then
+        assertAll(
+                () -> assertThat(januaryFirst2020exchangeRates.get(USD)).isEqualTo(januaryFirst2020ratedUSD),
+                () -> assertThat(januarySecond20202xchangeRates.get(USD)).isEqualTo(januarySecond2020ratesUSD),
+                () -> assertThat(januaryThird2020exchangeRates.get(USD)).isEqualTo(januaryThird2020ratesUSD)
+        );
+
+    }
+
+    private Map<String, DateTime> initializeDates() {
+
+        DateTime januaryFirst2020 = new DateTime(2020, 1, 1, 0, 0);
+        DateTime januarySecond2020 = new DateTime(2020, 1, 2, 0, 0);
+        DateTime januaryThird2020 = new DateTime(2020, 1, 3, 0, 0);
+
+        return new HashMap<String, DateTime>() {{
+            put("januaryFirst2020", januaryFirst2020);
+            put("januarySecond2020", januarySecond2020);
+            put("januaryThird2020", januaryThird2020);
+        }};
+
+    }
+
+    private List<ExchangeRates> initializeExchangeRatesForFirst3DaysOfJanuary() {
+
+        Map<String, DateTime> dates = initializeDates();
+
+        DateTime januaryFirst2020 = dates.get("januaryFirst2020");
+        DateTime januarySecond2020 = dates.get("januarySecond2020");
+        DateTime januaryThird2020 = dates.get("januaryThird2020");
+
+        ExchangeRates firstExchange = new RatesForCurrencyForDayBuilder().
+                basedEUR().
+                forDay(januaryFirst2020).
+                addRate(USD, 1.20).
+                addRate(SEK, 10.30).
+                build();
+        ExchangeRates secondExchange = new RatesForCurrencyForDayBuilder().
+                basedEUR().
+                forDay(januarySecond2020).
+                addRate(USD, 1.21).
+                addRate(SEK, 10.31).
+                build();
+        ExchangeRates thirdExchange = new RatesForCurrencyForDayBuilder().
+                basedEUR().
+                forDay(januaryThird2020).
+                addRate(USD, 1.22).
+                addRate(SEK, 10.32).
+                build();
+
+        return new ArrayList<ExchangeRates>() {{
+            add(firstExchange);
+            add(secondExchange);
+            add(thirdExchange);
+        }};
+    }
+
     private ExchangeRates initializeExchangeRates() {
-        Map<String, Double> rates = new HashMap<String, Double>() {};
+        Map<String, Double> rates = new HashMap<String, Double>() {
+        };
         rates.put(USD, random.nextDouble());
         rates.put(SEK, random.nextDouble());
         return initializeExchangeRates(EUR, DateTime.now(), rates);
     }
 
     private ExchangeRates initializeExchangeRates(String base) {
-        Map<String, Double> rates = new HashMap<String, Double>() {};
+        Map<String, Double> rates = new HashMap<String, Double>() {
+        };
         rates.put(EUR, random.nextDouble());
         rates.put(SEK, random.nextDouble());
         return initializeExchangeRates(base, DateTime.now(), rates);
